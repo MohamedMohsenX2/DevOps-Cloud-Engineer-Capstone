@@ -26,8 +26,6 @@ workflows:
     jobs:
       - create-deployment:
           cluster-name: capstonepro
-          requires:
-            - aws-eks/create-cluster
       - aws-eks/update-container-image:
           cluster-name: capstonepro
           container-image-updates: 'capstone-project=4servnet/capstone-test'
