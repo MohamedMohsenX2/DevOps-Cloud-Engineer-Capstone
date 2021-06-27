@@ -24,22 +24,7 @@ jobs:
 workflows:
   default:
     jobs:
-      #- build
-      - create-deployment:
-          cluster-name: capstonepro
-      - aws-eks/update-container-image:
-          cluster-name: capstonepro
-          container-image-updates: 'capstone-project=4servnet/capstone-test'
-          post-steps:
-            - kubernetes/delete-resource:
-                resource-names: capstone-project
-                resource-types: deployment
-                wait: true
-          record: true
-          requires:
-            - create-deployment
-          resource-name: deployment/capstone-project
-      - aws-eks/delete-cluster:
-          cluster-name: capstonepro
-          requires:
-            - aws-eks/update-container-image
+      - docker/publish:
+          image: 4servnet/capstone-test
+          use-docker-credentials-store: true
+          tag: latest          
