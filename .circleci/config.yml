@@ -25,23 +25,8 @@ workflows:
   default:
     jobs:
       #- build
-      - docker/hadolint:
-          executor-class: medium
-          hadolint-tag: 2.2.0-debian
-          ignore-rules: 'DL4005,DL3008'
-      - docker/publish:
-          image: 4servnet/capstone-test
-          use-docker-credentials-store: true
-          requires:
-            - docker/hadolint
-      - aws-eks/create-cluster:
-          cluster-name: capstonepro
-          requires:
-            - docker/publish
       - create-deployment:
           cluster-name: capstonepro
-          requires:
-            - aws-eks/create-cluster
       - aws-eks/update-container-image:
           cluster-name: capstonepro
           container-image-updates: 'capstone-project=4servnet/capstone-test'
