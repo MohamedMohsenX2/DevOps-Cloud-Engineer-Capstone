@@ -4,21 +4,22 @@ orbs:
   aws-eks: circleci/aws-eks@1.1.0
   kubernetes: circleci/kubernetes@0.12.0
 jobs:
-  test-cluster:
+  create-deployment:
     executor: aws-eks/python3
     parameters:
-      cluster-name: 
+      cluster-name:
         description: |
           Name of the EKS cluster
         type: string
     steps:
-      - kubernetes/install
+      - checkout
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
-      - run:
-          command: |
-            kubectl get services
-          name: Test cluster
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: true
+          resource-file-path: deployment.yml
+          resource-name: deployment/capstone-project
 
 workflows:
   default:
@@ -28,16 +29,32 @@ workflows:
           executor-class: medium
           hadolint-tag: 2.2.0-debian
           ignore-rules: 'DL4005,DL3008'
-#      - docker/publish:
-#          image: 4servnet/capstone-test
-#          use-docker-credentials-store: true
+      - docker/publish:
+          image: 4servnet/capstone-test
+          use-docker-credentials-store: true
+          requires:
+            - docker/hadolint
       - aws-eks/create-cluster:
           cluster-name: capstonepro
-      - test-cluster:
+          requires:
+            - docker/publish
+      - create-deployment:
           cluster-name: capstonepro
           requires:
             - aws-eks/create-cluster
+      - aws-eks/update-container-image:
+          cluster-name: capstonepro
+          container-image-updates: 'capstone-project=4servnet/capstone-test'
+          post-steps:
+            - kubernetes/delete-resource:
+                resource-names: capstone-project
+                resource-types: deployment
+                wait: true
+          record: true
+          requires:
+            - create-deployment
+          resource-name: deployment/capstone-project
       - aws-eks/delete-cluster:
           cluster-name: capstonepro
           requires:
-            - test-cluster
+            - aws-eks/update-container-image
