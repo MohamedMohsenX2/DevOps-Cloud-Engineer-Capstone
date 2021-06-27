@@ -45,5 +45,5 @@ workflows:
     jobs:
       #- build
       - docker/publish:
-          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+          image: 4servnet/capstone-test
           use-docker-credentials-store: true
