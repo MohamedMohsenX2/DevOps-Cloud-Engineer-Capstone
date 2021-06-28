@@ -59,7 +59,6 @@ workflows:
             - docker/hadolint
       - aws-eks/create-cluster:
           cluster-name: capstonepro
-          node-type: t2.micro
           requires:
             - docker/publish
       - create-deployment:
@@ -82,7 +81,7 @@ workflows:
           cluster-name: capstonepro
           requires:
             - aws-eks/update-container-image
-      # - aws-eks/delete-cluster:
-      #     cluster-name: capstonepro
-      #     requires:
-      #       - aws-eks/update-container-image
+      - aws-eks/delete-cluster:
+          cluster-name: capstonepro
+          requires:
+            - aws-eks/update-container-image
