@@ -31,7 +31,7 @@ jobs:
       - aws-eks/install-aws-iam-authenticator
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
-          node-type: "t2.micro"
+          node-type: "t3.medium"
           verbose: 3
           show-eksctl-command: true
 
