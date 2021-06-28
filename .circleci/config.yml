@@ -54,10 +54,12 @@ workflows:
       - docker/publish:
           image: 4servnet/capstone
           use-docker-credentials-store: true
+          tag: latest   
           requires:
             - docker/hadolint
       - aws-eks/create-cluster:
           cluster-name: capstonepro
+          node-type: t2.micro
           requires:
             - docker/publish
       - create-deployment:
@@ -77,10 +79,10 @@ workflows:
             - create-deployment
           resource-name: deployment/capstone-project
       - verify-cluster:
-          cluster-name: capstone-project
-          requires:
-            - aws-eks/create-cluster
-      - aws-eks/delete-cluster:
           cluster-name: capstonepro
           requires:
             - aws-eks/update-container-image
+      # - aws-eks/delete-cluster:
+      #     cluster-name: capstonepro
+      #     requires:
+      #       - aws-eks/update-container-image
