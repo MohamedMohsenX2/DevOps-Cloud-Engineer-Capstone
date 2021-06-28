@@ -21,14 +21,47 @@ jobs:
           resource-file-path: deployment.yml
           resource-name: deployment/capstone-project
 
+  verify-cluster:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+      - run:
+          command: |
+            kubectl get services
+            kubectl get pods  
+          name: Verify cluster
+
 workflows:
   default:
     jobs:
+      #- build
+      - docker/hadolint:
+          executor-class: medium
+          hadolint-tag: 2.2.0-debian
+          ignore-rules: 'DL4005,DL3008'
+      - docker/publish:
+          image: 4servnet/capstone
+          use-docker-credentials-store: true
+          requires:
+            - docker/hadolint
+      - aws-eks/create-cluster:
+          cluster-name: capstonepro
+          requires:
+            - docker/publish
       - create-deployment:
           cluster-name: capstonepro
+          requires:
+            - aws-eks/create-cluster
       - aws-eks/update-container-image:
           cluster-name: capstonepro
-          container-image-updates: 'capstone-project=4servnet/capstone-test'
+          container-image-updates: 'capstone-project=4servnet/capstone'
           post-steps:
             - kubernetes/delete-resource:
                 resource-names: capstone-project
@@ -38,6 +71,10 @@ workflows:
           requires:
             - create-deployment
           resource-name: deployment/capstone-project
+      - verify-cluster:
+          cluster-name: capstone-project
+          requires:
+            - aws-eks/create-cluster
       - aws-eks/delete-cluster:
           cluster-name: capstonepro
           requires:
