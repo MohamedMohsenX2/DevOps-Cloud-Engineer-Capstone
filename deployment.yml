@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: capstone-project
-          image: 4servnet/capstone-test
+          image: 4servnet/capstone
           imagePullPolicy: "Always"
           ports:
             - containerPort: 80

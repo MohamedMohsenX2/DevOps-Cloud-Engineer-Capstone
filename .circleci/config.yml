@@ -30,7 +30,7 @@ workflows:
           hadolint-tag: 2.2.0-debian
           ignore-rules: 'DL4005,DL3008'
       - docker/publish:
-          image: 4servnet/capstone-test
+          image: 4servnet/capstone
           use-docker-credentials-store: true
           requires:
             - docker/hadolint
@@ -44,7 +44,7 @@ workflows:
             - aws-eks/create-cluster
       - aws-eks/update-container-image:
           cluster-name: capstonepro
-          container-image-updates: 'capstone-project=4servnet/capstone-test'
+          container-image-updates: 'capstone-project=4servnet/capstone'
           post-steps:
             - kubernetes/delete-resource:
                 resource-names: capstone-project
