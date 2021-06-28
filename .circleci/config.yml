@@ -1,5 +1,4 @@
 version: 2.1
-
 orbs:
   docker: circleci/docker@1.6.0
   aws-eks: circleci/aws-eks@1.1.0
@@ -22,6 +21,19 @@ jobs:
           get-rollout-status: true
           resource-file-path: deployment.yml
           resource-name: deployment/capstone-project
+
+  setup-customized-cluster:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        type: string
+    steps:
+      - aws-eks/install-aws-iam-authenticator
+      - aws-eks/create-cluster:
+          cluster-name: << parameters.cluster-name >>
+          node-type: "t2.micro"
+          verbose: 3
+          show-eksctl-command: true
 
   verify-cluster:
     executor: aws-eks/python3
@@ -57,14 +69,14 @@ workflows:
           tag: latest   
           requires:
             - docker/hadolint
-      - aws-eks/create-cluster:
+      - setup-customized-cluster:
           cluster-name: capstonepro
           requires:
             - docker/publish
       - create-deployment:
           cluster-name: capstonepro
           requires:
-            - aws-eks/create-cluster
+            - setup-customized-cluster
       - aws-eks/update-container-image:
           cluster-name: capstonepro
           container-image-updates: 'capstone-project=4servnet/capstone'
