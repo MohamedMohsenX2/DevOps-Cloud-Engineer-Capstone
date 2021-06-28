@@ -54,33 +54,6 @@ workflows:
       - docker/publish:
           image: 4servnet/capstone
           use-docker-credentials-store: true
+          tag: latest   
           requires:
             - docker/hadolint
-      - aws-eks/create-cluster:
-          cluster-name: capstonepro
-          requires:
-            - docker/publish
-      - create-deployment:
-          cluster-name: capstonepro
-          requires:
-            - aws-eks/create-cluster
-      - aws-eks/update-container-image:
-          cluster-name: capstonepro
-          container-image-updates: 'capstone-project=4servnet/capstone'
-          post-steps:
-            - kubernetes/delete-resource:
-                resource-names: capstone-project
-                resource-types: deployment
-                wait: true
-          record: true
-          requires:
-            - create-deployment
-          resource-name: deployment/capstone-project
-      - verify-cluster:
-          cluster-name: capstone-project
-          requires:
-            - aws-eks/create-cluster
-      - aws-eks/delete-cluster:
-          cluster-name: capstonepro
-          requires:
-            - aws-eks/update-container-image
