@@ -49,7 +49,7 @@ jobs:
       - run:
           command: |
             kubectl get services
-            kubectl get pods  
+            kubectl get pods  --all-namespaces 
           name: Verify cluster
 
 workflows:
@@ -95,7 +95,3 @@ workflows:
           cluster-name: capstonepro
           requires:
             - aws-eks/update-container-image
-      - aws-eks/delete-cluster:
-          cluster-name: capstonepro
-          requires:
-            - verify-cluster
