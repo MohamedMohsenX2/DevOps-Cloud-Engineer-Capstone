@@ -63,6 +63,8 @@ workflows:
       - anchore/image_scan:
           image_name: anchore/anchore-engine:latest
           timeout: '300'
+          requires:
+            - docker/hadolint
       - docker/publish:
           image: 4servnet/capstone
           use-docker-credentials-store: true
